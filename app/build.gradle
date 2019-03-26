@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    // note: use gradle.properties in project root level to set your api credentials
+    def apiKey = project.properties['indoorAtlasApiKey'] ?: "48b5939f-1496-4dfe-ab12-3b79b2abae5b";
+    def apiSecret = project.properties['indoorAtlasApiSecret'] ?: "MYxT6n8y6HujjtHVWmRwSez+ceBJk7l/YEw6xdhGxF5APDFMhhyKjnqmBNdkOysGAo9Trcnj+jFVsbXopsP8M+xFKanZREb3inZd0v6hp8/MBt0J7ujiDXmIGqpPlQ==";
+    def pubNubPublishKey = project.properties['pubNubPublishKey'] ?: "not-set";
+    def pubNubSubscribeKey = project.properties['pubNubSubscribeKey'] ?: "not-set";
+
+    defaultConfig {
+        applicationId "ng.dat.ar"
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // avoid getting errors from malformed string resources if secret contains '%' chars
+        resValue "string", "indooratlas_api_key", apiKey
+        resValue "string", "indooratlas_api_secret", apiSecret.replaceAll("%", "\\\\u0025")
+        resValue "string", "pubnub_publish_key", pubNubPublishKey
+        resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "sdk_debug"
+            keyPassword "android"
+        }
+    }
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    implementation "com.indooratlas.android:indooratlas-android-sdk:3.0.0-alpha-998@aar"
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:exifinterface:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:support-media-compat:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
+    implementation 'com.pubnub:pubnub-android:3.7.5'
+    testImplementation 'junit:junit:4.12'
+    // for Open Street Map support
+    implementation 'org.osmdroid:osmdroid-android:6.0.3'
+    implementation 'com.github.MKergall:osmbonuspack:6.5.3'
+
+}
